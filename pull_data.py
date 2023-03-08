@@ -1,12 +1,18 @@
+#-*- coding: utf-8 -*-
 import os
 import sys
 import urllib.request
 from settings import *
+from datetime import date
 
+endDate = date.today().strftime("%Y-%m-%d")
 url = "https://openapi.naver.com/v1/datalab/search"
-body = "{\"startDate\":\"2017-01-01\",\"endDate\":\"2017-04-30\",\"timeUnit\":\"month\", \
-        \"keywordGroups\":[{\"groupName\":\"한글\",\"keywords\":[\"한글\",\"korean\"]}, \
-        {\"groupName\":\"영어\",\"keywords\":[\"영어\",\"english\"]}],\"device\":\"pc\",\"ages\":[\"1\",\"2\"],\"gender\":\"f\"}"
+body = "{\"startDate\":\"2020-01-01\",                                              \
+        \"endDate\":\endDate,                                                 \
+        \"timeUnit\":\"date\",                                                      \
+        \"keywordGroups\":[                                                         \
+            {\"groupName\":\"한글\",\"keywords\":[\"한글\",\"korean\"]},              \
+            {\"groupName\":\"영어\",\"keywords\":[\"영어\",\"english\"]}],}"
 
 request = urllib.request.Request(url)
 request.add_header("X-Naver-Client-Id",CLIENT_ID)
