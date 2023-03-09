@@ -11,8 +11,8 @@ import numpy as np
 
 pd.options.display.float_format = '{:.2f}'.format
 
-class NaverOpenAPI():
-    def __init__(self, client_id, client_secret):
+class NaverSearchAPI():
+    def __init__(self):
         # Import client details, intialize keywordGroups with None
         self.client_id = CLIENT_ID
         self.client_secret = CLIENT_SECRET
@@ -28,8 +28,8 @@ class NaverOpenAPI():
         }
         self.keywordGroups.append(keyword_group)
     
-    def get_data(self, endDate, startDate, timeUnit, ages, gender, device):
-        # apply given data to params
+    def get_data(self, startDate, endDate, timeUnit, ages, gender, device):
+        # Apply given data to params
         params = json.dumps({
             "startDate": startDate,
             "endDate": endDate,
