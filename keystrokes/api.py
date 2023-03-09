@@ -49,6 +49,45 @@ class NaverSearchAPI():
         rescode = response.getcode()
         if(rescode==200):
             result = json.loads(response.read())
-            print(result)
+            # JSON SAMPLE
+            # {
+            #     'startDate': '2020-01-01', 
+            #     'endDate': '2020-01-03', 
+            #     'timeUnit': 'date', 
+            #     'results': [{
+            #         'title': '애플', 
+            #         'keywords': ['애플', 'Apple', 'AAPL'], 
+            #         'data': [{
+            #                 'period': '2020-01-01', 'ratio': 4.61406}, 
+            #                 {'period': '2020-01-02', 'ratio': 5.23919}, 
+            #                 {'period': '2020-01-03', 'ratio': 5.04305}]}, 
+            #                 {
+            #         'title': '아마존', 
+            #         'keywords': ['아마존', 'Amazon', 'AMZN'], 
+            #         'data': [{
+            #                 'period': '2020-01-01', 'ratio': 2.17676}, 
+            #                 {'period': '2020-01-02', 'ratio': 2.6676}, 
+            #                 ...
+            df = pd.json_normalize(result, 
+                                   record_path=["results", "data"],
+                                   meta=[["results","title"]]
+                                    )
+            # The above result shows
+            #        period  ratio results.title
+            # 0  2020-01-01   4.61            애플
+            # 1  2020-01-02   5.24            애플
+            # 3  2020-01-01   2.18           아마존
+            # 4  2020-01-02   2.67           아마존
+            # 6  2020-01-01  89.66            구글
+            # 7  2020-01-02 100.00            구글
+
+            # Pivot is needed for a structure of 
+            # results.title     구글  아마존   애플
+            # period                        
+            # 2020-01-01     89.66 2.18 4.61
+            # 2020-01-02    100.00 2.67 5.24
+
+            df = df.pivot(index='period', columns='results.title', values='ratio')
         else:
             print("Error Code:" + rescode)
+        return df
