@@ -1,7 +1,7 @@
 import api
 
-startDate = "2020-01-01"
-endDate = "2020-01-03"
+startDate = "2023-02-10"
+endDate = "2023-03-08"
 timeUnit = 'date'
 device = ''
 ages = []
