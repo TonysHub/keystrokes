@@ -1,7 +1,11 @@
 #-*- coding: utf-8 -*-
 import os
 import sys
+import time
 import json
+import random
+import requests
+import signaturehelper
 import urllib.request
 from settings import *
 from datetime import date
@@ -49,45 +53,72 @@ class NaverSearchAPI():
         rescode = response.getcode()
         if(rescode==200):
             result = json.loads(response.read())
-            # JSON SAMPLE
-            # {
-            #     'startDate': '2020-01-01', 
-            #     'endDate': '2020-01-03', 
-            #     'timeUnit': 'date', 
-            #     'results': [{
-            #         'title': '애플', 
-            #         'keywords': ['애플', 'Apple', 'AAPL'], 
-            #         'data': [{
-            #                 'period': '2020-01-01', 'ratio': 4.61406}, 
-            #                 {'period': '2020-01-02', 'ratio': 5.23919}, 
-            #                 {'period': '2020-01-03', 'ratio': 5.04305}]}, 
-            #                 {
-            #         'title': '아마존', 
-            #         'keywords': ['아마존', 'Amazon', 'AMZN'], 
-            #         'data': [{
-            #                 'period': '2020-01-01', 'ratio': 2.17676}, 
-            #                 {'period': '2020-01-02', 'ratio': 2.6676}, 
-            #                 ...
             df = pd.json_normalize(result, 
-                                   record_path=["results", "data"],
-                                   meta=[["results","title"]]
-                                    )
-            # The above result shows
-            #        period  ratio results.title
-            # 0  2020-01-01   4.61            애플
-            # 1  2020-01-02   5.24            애플
-            # 3  2020-01-01   2.18           아마존
-            # 4  2020-01-02   2.67           아마존
-            # 6  2020-01-01  89.66            구글
-            # 7  2020-01-02 100.00            구글
-
-            # Pivot is needed for a structure of 
-            # results.title     구글  아마존   애플
-            # period                        
-            # 2020-01-01     89.66 2.18 4.61
-            # 2020-01-02    100.00 2.67 5.24
-
+                        record_path=["results", "data"],
+                        meta=[["results","title"]]
+                        )
             df = df.pivot(index='period', columns='results.title', values='ratio')
         else:
             print("Error Code:" + rescode)
         return df
+    
+    '''JSON SAMPLE - saved for future reference
+    {
+        'startDate': '2020-01-01', 
+        'endDate': '2020-01-03', 
+        'timeUnit': 'date', 
+        'results': [{
+            'title': '애플', 
+            'keywords': ['애플', 'Apple', 'AAPL'], 
+            'data': [{
+                    'period': '2020-01-01', 'ratio': 4.61406}, 
+                    {'period': '2020-01-02', 'ratio': 5.23919}, 
+                    {'period': '2020-01-03', 'ratio': 5.04305}]}, 
+                    {
+            'title': '아마존', 
+            'keywords': ['아마존', 'Amazon', 'AMZN'], 
+            'data': [{
+                    'period': '2020-01-01', 'ratio': 2.17676}, 
+                    {'period': '2020-01-02', 'ratio': 2.6676}, 
+                    ...
+
+    The above result shows
+            period  ratio results.title
+    0  2020-01-01   4.61            애플
+    1  2020-01-02   5.24            애플
+    3  2020-01-01   2.18           아마존
+    4  2020-01-02   2.67           아마존
+    6  2020-01-01  89.66            구글
+    7  2020-01-02 100.00            구글
+
+    Pivot is needed for a structure of 
+    results.title     구글  아마존   애플
+    period                        
+    2020-01-01     89.66 2.18 4.61
+    2020-01-02    100.00 2.67 5.24'''
+            
+class NaverAdsAPI():
+    def __init__(self):
+        self.base_url = 'https://api.searchad.naver.com'
+        self.api_key = API_KEY
+        self.secret_key = SECRET_KEY
+        self.customer_id = CUSTOMER_ID
+
+    def get_header(self, method, uri):
+        timestamp = str(round(time.time() * 1000))
+        signature = signaturehelper.Signature.generate(timestamp, method, uri, self.secret_key)
+        return {'Content-Type': 'application/json; charset=UTF-8', 
+                'X-Timestamp': timestamp, 'X-API-KEY': self.api_key, 
+                'X-Customer': str(self.customer_id), 'X-Signature': signature}
+
+    def get_keywords(self, keyword):
+        uri = '/keywordstool'
+        method = 'GET'
+        r = requests.get(self.base_url + uri+'?hintKeywords={}&showDetail=1'.format(keyword),
+                 headers=self.get_header(method, uri))
+        if r.status_code == 200:
+            result = r.json()
+            return result
+        else:
+            print("Error Code:" + r.status_code)
+
