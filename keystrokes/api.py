@@ -119,17 +119,17 @@ class NaverAdsAPI():
         if r.status_code == 200:
             df = pd.DataFrame(r.json()['keywordList'])
             df.rename({'compIdx':'경쟁정도',
-           'monthlyAveMobileClkCnt':'월평균클릭수_모바일',
-           'monthlyAveMobileCtr':'월평균클릭률_모바일',
-           'monthlyAvePcClkCnt':'월평균클릭수_PC',
-           'monthlyAvePcCtr':'월평균클릭률_PC', 
-           'monthlyMobileQcCnt':'월간검색수_모바일',
-           'monthlyPcQcCnt': '월간검색수_PC',
-           'plAvgDepth':'월평균노출광고수', 
-           'relKeyword':'연관키워드'},axis=1,inplace=True)
+                       'monthlyAveMobileClkCnt':'월평균클릭수_모바일',
+                       'monthlyAveMobileCtr':'월평균클릭률_모바일',
+                       'monthlyAvePcClkCnt':'월평균클릭수_PC',
+                       'monthlyAvePcCtr':'월평균클릭률_PC', 
+                       'monthlyMobileQcCnt':'월간검색수_모바일',
+                       'monthlyPcQcCnt': '월간검색수_PC',
+                       'plAvgDepth':'월평균노출광고수', 
+                       'relKeyword':'키워드'},axis=1,inplace=True)
             return df
         else:
-            print("Error Code:" + r.status_code)
+            print("Error Code:", r.status_code)
 
     def get_avg_bid(self):
         uri = '/estimate/average-position-bid/keyword'
@@ -138,6 +138,11 @@ class NaverAdsAPI():
                                                                                {'key': '게스트하우스', 'position': 1}, 
                                                                                {'key': '자전거여행', 'position': 1}]}, 
                                                     headers=self.get_header(method, uri))
-        print("#response status_code = {}".format(r.status_code))
-        print("#response body = {}".format(r.json()))
-
+        if r.status_code == 200:
+            df = pd.DataFrame(r.json()['estimate'])
+            df.rename({'bid': '광고_단가',
+                       'keyword': '키워드',
+                       'position': '광고_노출_순위'}, axis=1, inplace=True)
+            return df
+        else:
+            print("Error Code:", r.status_code )
