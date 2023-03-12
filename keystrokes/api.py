@@ -115,7 +115,7 @@ class NaverAdsAPI():
         uri = '/keywordstool'
         method = 'GET'
         r = requests.get(self.base_url + uri+'?hintKeywords={}&showDetail=1'.format(keyword),
-                 headers=self.get_header(method, uri))
+                         headers=self.get_header(method, uri))
         if r.status_code == 200:
             df = pd.DataFrame(r.json()['keywordList'])
             df.rename({'compIdx':'경쟁정도',
@@ -130,4 +130,14 @@ class NaverAdsAPI():
             return df
         else:
             print("Error Code:" + r.status_code)
+
+    def get_avg_bid(self):
+        uri = '/estimate/average-position-bid/keyword'
+        method = 'POST'
+        r = requests.post(self.base_url + uri, json={'device': 'PC', 'items': [{'key': '제주여행', 'position': 1}, 
+                                                                               {'key': '게스트하우스', 'position': 1}, 
+                                                                               {'key': '자전거여행', 'position': 1}]}, 
+                                                    headers=self.get_header(method, uri))
+        print("#response status_code = {}".format(r.status_code))
+        print("#response body = {}".format(r.json()))
 
