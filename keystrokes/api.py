@@ -6,7 +6,6 @@ import json
 import random
 import requests
 import signaturehelper
-import urllib.request
 from settings import *
 from datetime import date
 
@@ -17,7 +16,6 @@ pd.options.display.float_format = '{:.2f}'.format
 
 class naverSearchAPI():
     def __init__(self):
-        # Import client details, intialize keywordGroups with None
         self.client_id = CLIENT_ID
         self.client_secret = CLIENT_SECRET
         self.keywordGroups = []
@@ -42,15 +40,16 @@ class naverSearchAPI():
             "gender": gender
         }, ensure_ascii=False)
         
-        # Below code is from NaverAPI 
-        request = urllib.request.Request(self.url)
-        request.add_header("X-Naver-Client-Id",self.client_id)
-        request.add_header("X-Naver-Client-Secret",self.client_secret)
-        request.add_header("Content-Type","application/json")
-        response = urllib.request.urlopen(request, data=params.encode("utf-8"))
-        rescode = response.getcode()
+        headers = {
+            "X-Naver-Client-Id": self.client_id,
+            "X-Naver-Client-Secret": self.client_secret,
+            "Content-Type": "application/json",
+        }
+        response = requests.post(self.url, headers=headers, data=params.encode("utf-8"))
+        rescode = response.status_code
+
         if(rescode==200):
-            result = json.loads(response.read())
+            result = response.json()
             df = pd.json_normalize(result, 
                         record_path=["results", "data"],
                         meta=[["results","title"]]
@@ -144,23 +143,78 @@ class naverAdsAPI():
             return df
         else:
             print("Error Code:", r.status_code )
+
 class naverShoppingAPI():
     def __init__(self):
         self.client_id = CLIENT_ID
         self.client_secret = CLIENT_SECRET
-        self.url = "https://openapi.naver.com/v1/datalab/shopping/categories"
     
-    def get_data(self, category_id):
+    def get_comparison_data(self, startDate, endDate, timeUnit, category, ages, gender, device):
+        url = "https://openapi.naver.com/v1/datalab/shopping/categories"
+        params = json.dumps({
+            "startDate": startDate,
+            "endDate": endDate,
+            "timeUnit": timeUnit,
+            "category": category,
+            "keyword": self.keyword,
+            "keyword.name": "",
+            "keyword.param": [],
+            "device": device,
+            "ages": ages,
+            "gender": gender
+        }, ensure_ascii=False)
         
+        headers = {
+            "X-Naver-Client-Id": self.client_id,
+            "X-Naver-Client-Secret": self.client_secret,
+            "Content-Type": "application/json",
+        }
+        response = requests.post(url, headers=headers, data=params.encode("utf-8"))
+        rescode = response.status_code
 
-        request = urllib.request.Request(url)
-        request.add_header("X-Naver-Client-Id",client_id)
-        request.add_header("X-Naver-Client-Secret",client_secret)
-        request.add_header("Content-Type","application/json")
-        response = urllib.request.urlopen(request, data=body.encode("utf-8"))
-        rescode = response.getcode()
-        if(rescode==200):
-            response_body = response.read()
-            print(response_body.decode('utf-8'))
-        else:
-            print("Error Code:" + rescode)
+    def get_gender_data(self, startDate, endDate, timeUnit, category, ages, gender, device):
+        url = "https://openapi.naver.com/v1/datalab/shopping/category/keyword/gender"
+        params = json.dumps({
+            "startDate": startDate,
+            "endDate": endDate,
+            "timeUnit": timeUnit,
+            "category": category,
+            "keyword": self.keyword,
+            "keyword.name": "",
+            "keyword.param": [],
+            "device": device,
+            "ages": ages,
+            "gender": gender
+        }, ensure_ascii=False)
+        
+        headers = {
+            "X-Naver-Client-Id": self.client_id,
+            "X-Naver-Client-Secret": self.client_secret,
+            "Content-Type": "application/json",
+        }
+        response = requests.post(url, headers=headers, data=params.encode("utf-8"))
+        rescode = response.status_code
+
+    def get_age_data(self, startDate, endDate, timeUnit, category, ages, gender, device):
+        url = "https://openapi.naver.com/v1/datalab/shopping/category/keyword/age"
+        params = json.dumps({
+            "startDate": startDate,
+            "endDate": endDate,
+            "timeUnit": timeUnit,
+            "category": category,
+            "keyword": self.keyword,
+            "keyword.name": "",
+            "keyword.param": [],
+            "device": device,
+            "ages": ages,
+            "gender": gender
+        }, ensure_ascii=False)
+        
+        headers = {
+            "X-Naver-Client-Id": self.client_id,
+            "X-Naver-Client-Secret": self.client_secret,
+            "Content-Type": "application/json",
+        }
+        response = requests.post(url, headers=headers, data=params.encode("utf-8"))
+        rescode = response.status_code
+
