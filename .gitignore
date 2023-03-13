@@ -1,5 +1,6 @@
 *ipynb_checkpoints
 *__pycache__
+*categories_20230313.csv
 keystrokes/dev_settings.py
 venv
 .gitignore

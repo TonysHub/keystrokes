@@ -15,7 +15,7 @@ import numpy as np
 
 pd.options.display.float_format = '{:.2f}'.format
 
-class NaverSearchAPI():
+class naverSearchAPI():
     def __init__(self):
         # Import client details, intialize keywordGroups with None
         self.client_id = CLIENT_ID
@@ -25,8 +25,6 @@ class NaverSearchAPI():
 
     def add_keyword_group(self, group_dict):
         keyword_group = {
-            # Up to 5 groups, 20 keywords...
-            # Might have to call this function multiple times
             'groupName': group_dict['groupName'],
             'keywords': group_dict['keywords'] 
         }
@@ -97,7 +95,7 @@ class NaverSearchAPI():
     2020-01-01     89.66 2.18 4.61
     2020-01-02    100.00 2.67 5.24'''
             
-class NaverAdsAPI():
+class naverAdsAPI():
     def __init__(self):
         self.base_url = 'https://api.searchad.naver.com'
         self.api_key = API_KEY
@@ -146,3 +144,23 @@ class NaverAdsAPI():
             return df
         else:
             print("Error Code:", r.status_code )
+class naverShoppingAPI():
+    def __init__(self):
+        self.client_id = CLIENT_ID
+        self.client_secret = CLIENT_SECRET
+        self.url = "https://openapi.naver.com/v1/datalab/shopping/categories"
+    
+    def get_data(self, category_id):
+        
+
+        request = urllib.request.Request(url)
+        request.add_header("X-Naver-Client-Id",client_id)
+        request.add_header("X-Naver-Client-Secret",client_secret)
+        request.add_header("Content-Type","application/json")
+        response = urllib.request.urlopen(request, data=body.encode("utf-8"))
+        rescode = response.getcode()
+        if(rescode==200):
+            response_body = response.read()
+            print(response_body.decode('utf-8'))
+        else:
+            print("Error Code:" + rescode)
